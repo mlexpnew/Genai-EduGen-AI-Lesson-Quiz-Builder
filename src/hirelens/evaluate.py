@@ -27,8 +27,18 @@ import numpy as np
 from . import taxonomy
 from .parse import parse_jd, parse_resume, read_text
 from .score import rank
-from .synth import (DEV_TEMPLATES, HELD_OUT_TEMPLATES, JD_TEXT, KINDS, MUST, TODAY, generate,
-                    render_pdf, text, write)  # fmt: skip
+from .synth import (
+    DEV_TEMPLATES,
+    HELD_OUT_TEMPLATES,
+    JD_TEXT,
+    KINDS,
+    MUST,
+    TODAY,
+    generate,
+    render_pdf,
+    text,
+    write,
+)
 
 
 def ndcg(relevance: list[int], k: int) -> float:
