@@ -1,0 +1,12 @@
+AI Engineer (LLM Applications)
+We are hiring an engineer to build production LLM features for our fintech platform.
+Requirements:
+- 2+ years building software in Python
+- Hands-on with LLMs and RAG pipelines in production
+- Build and ship REST services with FastAPI
+- Package services with Docker
+Nice to have:
+- LangGraph or other agent frameworks
+- AWS deployment experience
+- Vector databases such as FAISS or Pinecone
+- Kubernetes

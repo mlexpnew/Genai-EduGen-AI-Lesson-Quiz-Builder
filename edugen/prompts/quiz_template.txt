@@ -1,7 +1,0 @@
-Create a short quiz (5 questions) for the lesson.
-- Use a mix of MCQ and short-answer
-- Provide an answer key
-- Keep questions aligned to the learning objectives
-Return as:
-Q1) ...
-A1) ...

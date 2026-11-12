@@ -1,7 +1,8 @@
-.venv/
-.env
-.env.*
 __pycache__/
-.chroma/
-.cache_*
-*.pdf
+*.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+eval_results/
+.env
