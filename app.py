@@ -1,33 +1,58 @@
+"""HireLens demo (Streamlit).
+
+    pip install -e ".[app]" && streamlit run app.py
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
 import streamlit as st
-from edugen.rag import upsert_pdf
-from edugen.core import generate_outline, generate_quiz
 
-st.set_page_config(page_title="EduGen – AI Lesson & Quiz Builder", layout="wide")
-st.title("📚 EduGen – AI Lesson & Quiz Builder")
+sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-with st.sidebar:
-    st.header("Knowledge Base")
-    up = st.file_uploader("Upload PDF(s) to ground lessons", type=["pdf"], accept_multiple_files=True)
-    if st.button("Build Index") and up:
-        total = 0
-        for f in up:
-            path = f".cache_{f.name}"
-            with open(path, "wb") as out: out.write(f.read())
-            total += upsert_pdf(path)
-        st.success(f"Indexed {total} chunks.")
+from hirelens.service import screen, workbook  # noqa: E402
+from hirelens.synth import JD_TEXT, TODAY, generate, render_pdf, text  # noqa: E402
 
-topic = st.text_input("Topic")
-col1,col2 = st.columns(2)
-with col1: gen_outline = st.checkbox("Generate Outline", True)
-with col2: gen_quiz = st.checkbox("Generate Quiz", True)
-go = st.button("Generate")
+st.set_page_config(page_title="HireLens", page_icon="🔎", layout="wide")
+st.title("HireLens")
+st.caption(
+    "Blind, explainable resume screening. Names, contact details, age and gender are "
+    "removed before scoring. Every decision shows its evidence; a recruiter decides."
+)
 
-if go and topic.strip():
-    if gen_outline:
-        st.subheader("📘 Lesson Outline")
-        st.write(generate_outline(topic))
-    if gen_quiz:
-        st.subheader("📝 Quiz")
-        st.write(generate_quiz(topic))
-else:
-    st.info("Upload PDFs (optional), enter a topic, then Generate.")
+
+@st.cache_data
+def samples() -> list[tuple[str, bytes]]:
+    return [(c.file, render_pdf(text(c))) for c in generate(18, seed=11)]
+
+
+jd_text = st.text_area("Job description", JD_TEXT, height=230)
+uploads = st.file_uploader("Resumes (PDF, DOCX, TXT)", type=["pdf", "docx", "txt"],
+                           accept_multiple_files=True)  # fmt: skip
+files = [(u.name, u.getvalue()) for u in uploads] if uploads else samples()
+if not uploads:
+    st.info(f"Using {len(files)} sample resumes. Upload your own to screen them.")
+
+if st.button("Screen candidates", type="primary"):
+    jd, results = screen(jd_text, files, today=TODAY if not uploads else None)
+    st.write(f"**Must-have:** {', '.join(sorted(jd.must_have)) or 'none found'} · "
+             f"**Nice to have:** {', '.join(sorted(jd.nice_to_have)) or 'none'} · "
+             f"**Minimum:** {jd.min_years:g} years")  # fmt: skip
+    c1, c2, c3 = st.columns(3)
+    for col, d, label in ((c1, "shortlist", "Shortlist"), (c2, "review", "Review"),
+                          (c3, "not_a_fit", "Not a fit")):  # fmt: skip
+        col.metric(label, sum(r.decision == d for r in results))
+    for i, a in enumerate(results, 1):
+        icon = {"shortlist": "🟢", "review": "🟡", "not_a_fit": "🔴"}[a.decision]
+        with st.expander(f"{icon} #{i}  {a.source}  ·  {a.score:.0f}/100  ·  {a.decision}"):
+            left, right = st.columns(2)
+            left.write("**Strengths**")
+            left.write("\n".join(f"- {s}" for s in a.strengths) or "-")
+            right.write("**Gaps**")
+            right.write("\n".join(f"- {g}" for g in a.gaps) or "-")
+            st.write("**Interview questions**")
+            st.write("\n".join(f"{n}. {q}" for n, q in enumerate(a.interview_questions, 1)))
+            st.caption(f"Score breakdown: {a.breakdown}")
+    st.download_button("Download shortlist (Excel)", workbook(jd, results), "shortlist.xlsx")
