@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hirelens"
+name = "fairshortlist"
 version = "1.0.0"
 description = "Explainable, blind resume screening for recruiters and staffing firms"
 readme = "README.md"
@@ -24,7 +24,7 @@ app = ["streamlit>=1.35"]
 dev = ["pytest>=8.0", "ruff>=0.5", "reportlab>=4.0", "httpx>=0.27"]
 
 [project.scripts]
-hirelens = "hirelens.cli:main"
+fairshortlist = "fairshortlist.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -42,4 +42,4 @@ select = ["E", "F", "I", "B", "UP"]
 ignore = ["B008"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["hirelens"]
+known-first-party = ["fairshortlist"]

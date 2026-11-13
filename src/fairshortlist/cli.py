@@ -1,6 +1,6 @@
 """Screen a folder of resumes against a job description.
 
-    hirelens job.txt resumes/ --out shortlist.xlsx
+    fairshortlist job.txt resumes/ --out shortlist.xlsx
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ TYPES = (".pdf", ".docx", ".txt")
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(prog="hirelens", description=__doc__.splitlines()[0])
+    p = argparse.ArgumentParser(prog="fairshortlist", description=__doc__.splitlines()[0])
     p.add_argument("job", help="job description (.txt)")
     p.add_argument("folder", help="folder of resumes (PDF, DOCX, TXT)")
     p.add_argument("--out", default="shortlist.xlsx")

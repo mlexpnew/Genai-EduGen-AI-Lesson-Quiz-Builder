@@ -1,8 +1,8 @@
 """HTTP API for ATS integrations.
 
-    uvicorn hirelens.api:app --port 8000
+    uvicorn fairshortlist.api:app --port 8000
 
-Resumes are processed in memory and never stored. Set HIRELENS_API_KEYS to require keys.
+Resumes are processed in memory and never stored. Set FAIRSHORTLIST_API_KEYS to require keys.
 """
 
 from __future__ import annotations
@@ -16,14 +16,14 @@ from .service import as_dicts, screen
 
 MAX_FILES, MAX_BYTES = 300, 5 * 1024 * 1024
 app = FastAPI(
-    title="HireLens",
+    title="FairShortlist",
     version=__version__,
     description="Explainable, blind resume screening. Recommendations for a human recruiter.",
 )
 
 
 def auth(x_api_key: str = Header(default="")) -> None:
-    keys = {k.strip() for k in os.getenv("HIRELENS_API_KEYS", "").split(",") if k.strip()}
+    keys = {k.strip() for k in os.getenv("FAIRSHORTLIST_API_KEYS", "").split(",") if k.strip()}
     if keys and x_api_key not in keys:
         raise HTTPException(401, "missing or invalid X-API-Key")
 

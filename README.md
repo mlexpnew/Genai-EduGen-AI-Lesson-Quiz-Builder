@@ -1,6 +1,6 @@
-# HireLens
+# FairShortlist
 
-![CI](https://github.com/mlexpnew/hirelens/actions/workflows/ci.yml/badge.svg?branch=main)
+![CI](https://github.com/mlexpnew/fairshortlist/actions/workflows/ci.yml/badge.svg?branch=main)
 
 **Blind, explainable resume screening for recruiters and staffing firms.**
 Paste a job description, drop in a folder of resumes (PDF, DOCX, TXT). Get a ranked shortlist where every decision shows its evidence, its gaps, and interview questions that probe those gaps. Names, contact details, age and gender are removed before anything is scored.
@@ -13,9 +13,9 @@ Keyword filters reward candidates who paste every buzzword into a skills list. T
 |---|---|---|
 | Keyword count (classic ATS filter) | 30% | 0.23 |
 | TF-IDF similarity ("AI match score") | 42% | 0.73 |
-| **HireLens** | **100%** | **1.00** |
+| **FairShortlist** | **100%** | **1.00** |
 
-| Candidate type | What they look like | Shortlisted by HireLens |
+| Candidate type | What they look like | Shortlisted by FairShortlist |
 |---|---|---|
 | Strong | every must-have used at work, enough years | 20 / 20 |
 | Alias writer | same, written as "k8s", "containerized", "retrieval-augmented generation" | 20 / 20 |
@@ -26,7 +26,7 @@ Keyword filters reward candidates who paste every buzzword into a skills list. T
 
 ## Fair by construction, and tested
 
-Hiring is high-risk AI under the EU AI Act: decisions must be explainable, and humans must stay in control. HireLens is built for that.
+Hiring is high-risk AI under the EU AI Act: decisions must be explainable, and humans must stay in control. FairShortlist is built for that.
 
 | Check | Result |
 |---|---|
@@ -36,6 +36,26 @@ Hiring is high-risk AI under the EU AI Act: decisions must be explainable, and h
 | Final decision | Always a recruiter. Output is shortlist / review / not a fit, with reasons |
 
 Redaction removes the name line, email, phone, links, date of birth, age, gender, marital status, nationality, religion and pronouns before parsing.
+
+## Who buys it and how it is sold
+
+| | |
+|---|---|
+| **Buyers** | Staffing and recruitment agencies (high volume, many roles), in-house talent teams at startups and mid-size firms, campus hiring teams |
+| **Their pain** | One open role brings 100 to 300 resumes; a recruiter skims each for seconds, keyword filters drop good people who write "k8s" instead of "Kubernetes", and nobody can explain later why a candidate was rejected |
+| **What they get** | A ranked shortlist with evidence for every decision, interview questions for each gap, and a fairness record they can show a client or an auditor |
+| **Deployment** | Docker on the client's own server or cloud. Resumes never leave their infrastructure (DPDP Act); no LLM, so no candidate data goes to a model provider |
+| **Integrations** | REST API (`/v1/screen`), Excel export today; ATS connectors (Zoho Recruit, Greenhouse, Lever) are the next step |
+
+**ROI example** (illustrative, plug in your own numbers): first-pass screening of 200 resumes takes a recruiter about 6 hours. If FairShortlist cuts that to a 1 hour review of its shortlist, an agency filling 20 roles a month at a loaded cost of ₹500 per recruiter hour saves **about ₹50,000 a month**, before counting better candidates that keyword filters would have dropped.
+
+| Plan (suggested) | For | Price idea |
+|---|---|---|
+| Per role | Small agencies, occasional hiring | ₹499 per role screened |
+| Team | In-house teams | ₹2,999 per recruiter per month |
+| Enterprise | Large agencies | Annual licence, on-premise, custom rubrics, audit reports |
+
+**Pilot plan (2 weeks, no risk to the client):** take 3 roles they have already closed, run their old applicant pools through FairShortlist, and compare with the people they actually interviewed and hired. The client sees agreement, misses and the time saved on their own data before any live use.
 
 ## How a candidate is scored
 
@@ -56,20 +76,20 @@ pip install -e ".[app]" && streamlit run app.py         # sample resumes preload
 
 ```bash
 pip install -e .
-hirelens data/job_description.txt data/samples --out shortlist.xlsx
+fairshortlist data/job_description.txt data/samples --out shortlist.xlsx
 # 12 resumes: 4 shortlist, 6 review, 2 not a fit -> shortlist.xlsx
 ```
 
 ```bash
-pip install -e ".[api]" && uvicorn hirelens.api:app     # or docker build -t hirelens . && docker run -p 8000:8000 hirelens
+pip install -e ".[api]" && uvicorn fairshortlist.api:app     # or docker build -t fairshortlist . && docker run -p 8000:8000 fairshortlist
 curl -F job_description="$(cat data/job_description.txt)" -F resumes=@data/samples/cand_001.pdf localhost:8000/v1/screen
 ```
 
 ## The benchmark, and how it kept me honest
 
-Real resumes cannot be published, so `python -m hirelens.evaluate` generates resume PDFs of the six kinds above, in several layouts, with known answers. The label follows a stated rule (every must-have used at work, minimum years met). The benchmark tests whether HireLens recovers that from messy documents; it does not claim the rule is the right hiring policy for every role. CI runs it on every push and fails below 90% R-precision or on **any** fairness change.
+Real resumes cannot be published, so `python -m fairshortlist.evaluate` generates resume PDFs of the six kinds above, in several layouts, with known answers. The label follows a stated rule (every must-have used at work, minimum years met). The benchmark tests whether FairShortlist recovers that from messy documents; it does not claim the rule is the right hiring policy for every role. CI runs it on every push and fails below 90% R-precision or on **any** fairness change.
 
-One layout is always held out: written before HireLens ever ran on it.
+One layout is always held out: written before FairShortlist ever ran on it.
 
 | Round | Finding | Fix |
 |---|---|---|
@@ -89,12 +109,12 @@ One layout is always held out: written before HireLens ever ran on it.
 ## Project layout
 
 ```
-src/hirelens/taxonomy.py   skills, aliases, implications, word-boundary matching
-src/hirelens/parse.py      redaction, sections, date ranges, demonstrated vs listed skills, JD parsing
-src/hirelens/score.py      rubric, gates, strengths, gaps, interview questions
-src/hirelens/service.py    screening + Excel shortlist
-src/hirelens/synth.py      synthetic resume generator (6 candidate kinds, 4 layouts)
-src/hirelens/evaluate.py   rankers compared, fairness swap test, held-out layout, CI gate
-src/hirelens/api.py        FastAPI service
+src/fairshortlist/taxonomy.py   skills, aliases, implications, word-boundary matching
+src/fairshortlist/parse.py      redaction, sections, date ranges, demonstrated vs listed skills, JD parsing
+src/fairshortlist/score.py      rubric, gates, strengths, gaps, interview questions
+src/fairshortlist/service.py    screening + Excel shortlist
+src/fairshortlist/synth.py      synthetic resume generator (6 candidate kinds, 4 layouts)
+src/fairshortlist/evaluate.py   rankers compared, fairness swap test, held-out layout, CI gate
+src/fairshortlist/api.py        FastAPI service
 app.py                     Streamlit demo
 ```

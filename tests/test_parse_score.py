@@ -2,10 +2,10 @@ from datetime import date
 
 import pytest
 
-from hirelens import taxonomy
-from hirelens.parse import experience_years, parse_jd, parse_resume, redact
-from hirelens.score import assess, rank
-from hirelens.synth import JD_TEXT
+from fairshortlist import taxonomy
+from fairshortlist.parse import experience_years, parse_jd, parse_resume, redact
+from fairshortlist.score import assess, rank
+from fairshortlist.synth import JD_TEXT
 
 TODAY = date(2026, 11, 12)
 

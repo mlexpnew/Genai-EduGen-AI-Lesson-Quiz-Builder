@@ -3,10 +3,10 @@ import io
 import pytest
 from openpyxl import load_workbook
 
-from hirelens.cli import main
-from hirelens.evaluate import run
-from hirelens.service import screen, workbook
-from hirelens.synth import DEV_TEMPLATES, JD_TEXT, TODAY, generate, render_pdf, text
+from fairshortlist.cli import main
+from fairshortlist.evaluate import run
+from fairshortlist.service import screen, workbook
+from fairshortlist.synth import DEV_TEMPLATES, JD_TEXT, TODAY, generate, render_pdf, text
 
 
 def files(n=12):
@@ -47,7 +47,8 @@ def test_benchmark_fairness_and_quality():
     r = run(36, 5, DEV_TEMPLATES)
     assert r["fairness"]["max_score_change_after_name_gender_swap"] == 0
     assert r["fairness"]["resumes_with_name_or_email_after_redaction"] == 0
-    assert r["rankers"]["hirelens"]["r_precision"] > r["rankers"]["tfidf_similarity"]["r_precision"]
+    rk = r["rankers"]
+    assert rk["fairshortlist"]["r_precision"] > rk["tfidf_similarity"]["r_precision"]
 
 
 def test_api():
@@ -55,7 +56,7 @@ def test_api():
     pytest.importorskip("httpx")
     from fastapi.testclient import TestClient
 
-    from hirelens.api import app
+    from fairshortlist.api import app
 
     c = TestClient(app)
     r = c.post("/v1/screen", data={"job_description": JD_TEXT},

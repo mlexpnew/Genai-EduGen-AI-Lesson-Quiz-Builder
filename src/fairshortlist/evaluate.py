@@ -1,11 +1,11 @@
-"""Benchmark HireLens against how screening is usually done.
+"""Benchmark FairShortlist against how screening is usually done.
 
-    python -m hirelens.evaluate --gate
+    python -m fairshortlist.evaluate --gate
 
 Compares three rankers on the same resumes:
 - keyword count: how many JD skills appear anywhere (classic ATS filter)
 - TF-IDF similarity between JD and resume text (classic "AI match score")
-- HireLens rubric
+- FairShortlist rubric
 
 and checks fairness directly: swap every candidate's name and gender markers, re-score,
 and measure the largest change (should be exactly 0).
@@ -81,7 +81,7 @@ def run(n: int, seed: int, templates: list[str]) -> dict:
     rankers = {
         "keyword_count": ranking_metrics(kw, qualified),
         "tfidf_similarity": ranking_metrics(tfidf, qualified),
-        "hirelens": ranking_metrics(order_hl, qualified),
+        "fairshortlist": ranking_metrics(order_hl, qualified),
     }
 
     # Decisions
@@ -143,7 +143,7 @@ def run(n: int, seed: int, templates: list[str]) -> dict:
 def report_markdown(dev: dict, held: dict) -> str:
     pct = lambda v: "n/a" if v is None else f"{v * 100:.0f}%"  # noqa: E731
     out = [
-        f"### HireLens benchmark ({dev['candidates']} resumes, {dev['qualified']} qualified, "
+        f"### FairShortlist benchmark ({dev['candidates']} resumes, {dev['qualified']} qualified, "
         f"layouts: {', '.join(dev['templates'])})",
         "",
         "| Ranker | R-precision | NDCG@10 |",
@@ -171,7 +171,7 @@ def report_markdown(dev: dict, held: dict) -> str:
         "",
         "| Check | Result |",
         "|---|---|",
-        f"| HireLens R-precision | {pct(held['rankers']['hirelens']['r_precision'])} |",
+        f"| FairShortlist R-precision | {pct(held['rankers']['fairshortlist']['r_precision'])} |",
         f"| Shortlist precision / recall | {pct(held['decisions']['shortlist_precision'])} / "
         f"{pct(held['decisions']['shortlist_recall'])} |",
         f"| Skill extraction precision / recall | {pct(held['parsing']['skill_precision'])} / "
@@ -187,7 +187,7 @@ GATES = {"r_precision": 0.9, "shortlist_precision": 0.9}
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description="Benchmark HireLens")
+    p = argparse.ArgumentParser(description="Benchmark FairShortlist")
     p.add_argument("--n", type=int, default=120)
     p.add_argument("--seed", type=int, default=3)
     p.add_argument("--out", default="eval_results")
@@ -203,7 +203,7 @@ def main(argv: list[str] | None = None) -> int:
     print(md)
     if a.gate:
         bad = []
-        if (dev["rankers"]["hirelens"]["r_precision"] or 0) < GATES["r_precision"]:
+        if (dev["rankers"]["fairshortlist"]["r_precision"] or 0) < GATES["r_precision"]:
             bad.append("r_precision")
         if (dev["decisions"]["shortlist_precision"] or 0) < GATES["shortlist_precision"]:
             bad.append("shortlist_precision")

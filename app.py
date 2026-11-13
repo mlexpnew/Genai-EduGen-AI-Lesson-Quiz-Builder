@@ -1,4 +1,4 @@
-"""HireLens demo (Streamlit).
+"""FairShortlist demo (Streamlit).
 
     pip install -e ".[app]" && streamlit run app.py
 """
@@ -12,11 +12,11 @@ import streamlit as st
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from hirelens.service import screen, workbook  # noqa: E402
-from hirelens.synth import JD_TEXT, TODAY, generate, render_pdf, text  # noqa: E402
+from fairshortlist.service import screen, workbook  # noqa: E402
+from fairshortlist.synth import JD_TEXT, TODAY, generate, render_pdf, text  # noqa: E402
 
-st.set_page_config(page_title="HireLens", page_icon="🔎", layout="wide")
-st.title("HireLens")
+st.set_page_config(page_title="FairShortlist", page_icon="🔎", layout="wide")
+st.title("FairShortlist")
 st.caption(
     "Blind, explainable resume screening. Names, contact details, age and gender are "
     "removed before scoring. Every decision shows its evidence; a recruiter decides."
